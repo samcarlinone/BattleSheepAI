@@ -16,37 +16,45 @@ class Board {
 
     this.hexes = [ new Hex() ];
     this.columns = [[ this.hexes[0] ]];
+
+    this._safe = true; // Enable / disable potentially performance degrading safety checks
   }
 
   _hexPos = (x, y) => {
-    if (!this.x.contains(x))
+    if (!this.x.contains(x) || !this.y.contains(y))
       return null;
 
     if (x % 2 === 0) {
-      // Even row, all integer coords
-      if (!this.y.contains(y))
-        return null;
-
       return { x: x - this.x.min, y: y - this.y.min };
     }
     else {
-      // Odd row, y coords are at fractional coords
-      if (!this.y.contains(y + Math.sign(y)))
-        return null;
-
       return { x: x - this.x.min, y: Math.floor(y - this.y.min) };
+    }
+  }
+
+  _checkCoords = (x, y) => {
+    if (x % 2 === 0) {
+      if (y % 1 !== 0)
+        throw "Y-Coordinate must be an integer for even rows!";
+    } else {
+      if (y % 1 === 0)
+        throw "Y-Coordinate must be fractional for odd rows!";
     }
   }
 
   /** Add a new hex at the provided position and return it */
   AddHex = (x, y) => {
+    // Ensure proper coordinates
+    if (this._safe)
+      this._checkCoords(x, y);
+
     // Make space for new hex if necessary
-    while (y < this.y.min) {
+    while (y - 0.5 < this.y.min) {
       this.columns.forEach(column => column.unshift(null));
       this.y.extend(-1);
     }
 
-    while (this.y.max < y) {
+    while (this.y.max < y + 0.5) {
       this.columns.forEach(column => column.push(null));
       this.y.extend(1);
     }
@@ -56,16 +64,20 @@ class Board {
       this.x.extend(-1);
     }
 
-    while (this.x.min < x) {
+    while (this.x.max < x) {
       this.columns.push(new Array(this.y.count()).fill(null));
       this.x.extend(1);
     }
 
     // Place the hex
+    let pos = this._hexPos(x, y);
+
+    // Don't allow duplicate placements
+    if (this.columns[pos.x][pos.y] != null)
+      return this.columns[pos.x][pos.y];
+
     let hex = new Hex(x, y);
     this.hexes.push(hex);
-
-    let pos = this._hexPos(x, y);
     this.columns[pos.x][pos.y] = hex;
 
     // Connect the hex to its neighbors
@@ -86,6 +98,10 @@ class Board {
 
   /** Gets the hex at specified coordinates or null */
   GetHex = (x, y) => {
+    // Ensure proper coordinates
+    if (this._safe)
+      this._checkCoords(x, y);
+
     let pos = this._hexPos(x, y);
     return pos === null ? null : this.columns[pos.x][pos.y];
   }

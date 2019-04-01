@@ -43,8 +43,9 @@ let Coords = deepFreeze({
   SW: 4,
   NW: 5,
   offsets: [[0, -1], [1, -0.5], [1, 0.5], [0, 1], [-1, 0.5], [-1, -0.5]],
-  toCartesian: (x, y) => [x, y * 2 + Math.sin(60 * toRad)],
-  toHex: (x, y) => [x, (y - Math.sin(60 * toRad) / 2)]
+  // Only transform for odd columns
+  toCartesian: (x, y) => [x * (1 + Math.cos(60 * toRad)) / 2, y * Math.sin(60 * toRad)],
+  toHex: (x, y) => [x, x % 2 === 0 ? y : y - Math.sin(60 * toRad)]
 });
 
 /** Recursively 'freeze' an Object effectively rendering it const */
