@@ -9,6 +9,15 @@ class Hex {
   }
 }
 
+class Move {
+  constructor(dir, take, x, y) {
+    this.dir = dir;
+    this.take = take;
+    this.x = x;
+    this.y = y;
+  }
+}
+
 class Board {
   constructor() {
     this.x = new Range();
@@ -16,6 +25,8 @@ class Board {
 
     this.hexes = [ new Hex() ];
     this.columns = [[ this.hexes[0] ]];
+
+    this.moves = [];
 
     this._safe = true; // Enable / disable potentially performance degrading safety checks
   }
@@ -106,18 +117,101 @@ class Board {
     return pos === null ? null : this.columns[pos.x][pos.y];
   }
 
+  /** Checks whether the passed hex is not null and uncolored */
+  IsOpen = (hex) => {
+    return hex !== null && hex.color === null;
+  }
+
   /** Starting at next hex, returns last empty hex (or null if none exists) */
   Trace = (x, y, dir) => {
     // Get start hex
     let hex = this.GetHex(x, y);
 
     // Follow links
-    while (hex.links[dir] !== null && hex.links[dir].color === null)
+    while (this.IsOpen(hex.links[dir]))
       hex = hex.links[dir];
 
+    // Return null if we didn't make it out of the starting node
     if (hex.x === x && hex.y === y)
       return null;
     else
       return hex;
+  }
+
+  /** Check whether a move is valid */
+  IsValid = (move) => {
+    let start = this.GetHex(move.x, move.y);
+
+    // Does start exist, is it colored?
+    if (start === null || start.color === null)
+      return false;
+
+    // Are we taking / leaving at least 1?
+    if (!(move.take >= 1 && start.count - move.take >= 1))
+      return false;
+
+    // Is there a valid space (only need one)?
+    if (!this.IsOpen(start.links[move.dir]))
+      return false;
+
+    return true;
+  }
+
+  /** Executes a given move on the board
+   * @returns whether the move could be executed */
+  Execute = (move) => {
+    if (!this.IsValid(move))
+      return false;
+
+    // Remember this
+    this.moves.push(move);
+
+    // Actually move
+    let start = this.GetHex(move.x, move.y);
+    let end = this.Trace(move.x, move.y, move.dir);
+
+    start.count -= move.take;
+    end.count += move.take;
+
+    end.color = start.color;
+
+    return true;
+  }
+
+  /** Undoes a given move (moves must be undone in correct order, this method shouldn't be used externally) */
+  _Undo = (move) => {
+    let start = this.GetHex(move.x, move.y);
+    // Since trace gives us the first emtpy or null, we get that and then go one further
+    let beforeEnd = this.Trace(move.x, move.y, move.dir) || start;
+    let end = beforeEnd.links[move.dir];
+
+    start.count += move.take;
+    end.count -= move.take;
+
+    end.color = null;
+  }
+
+  /** Undo a given number of moves */
+  Revert = (numToUndo) => {
+    for (let i = 0; i < numToUndo; i++)
+      this._Undo(this.moves.pop());
+  }
+
+  /** Gets all the points in the range */
+  GetPoints = (margin) => {
+    let result = [];
+
+    for (let x = this.x.min - margin; x < this.x.max + margin; x++) {
+      if (x % 2 == 0) {
+        for (let y = this.y.min - margin; y < this.y.max + margin; y++)
+          result.push([x, y]);
+      }
+      else {
+        for (let y = this.y.min - margin - 0.5; y < this.y.max + margin + 0.5; y++)
+          result.push([x, y]);
+      }
+    }
+
+    return result;
   }
 }

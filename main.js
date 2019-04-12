@@ -1,34 +1,35 @@
 let b = new Board();
+b.AddHex(-1, 0.5);
+b.AddHex(1, 0.5);
+b.AddHex(0, 1);
 
-for (let x = -6; x < 6; x += 2) {
+rojo = b.GetHex(0, 0);
+azul = b.GetHex(-1, 0.5);
 
-  for (let y = -6; y < 6; y++)
-    if (Math.random() < 0.1)
-      b.AddHex(x, y);
+rojo.color = red;
+rojo.count = 1;
 
-  for (let y = -5.5; y < 6; y++)
-    if (Math.random() < 0.1)
-      b.AddHex(x + 1, y);
-}
+azul.color = blue;
+azul.count = 10;
 
-let draw = SVG().addTo('#main')
-  .size(300, 300)
-  .viewbox(-10, -10, 20, 20);
+let renderer = new BoardRenderer(3);
+renderer.Render(b);
 
-b.hexes.forEach(hex => draw.circle(.4).center(...Coords.toCartesian(hex.x, hex.y)));
+// Move hex to mouse
+// draw.mousemove(({ screenX, screenY }) => {
+//   let point = draw.point(screenX, screenY);
+//   let hexPos = Coords.toHex(point.x, point.y);
+//   hexPos[0] = Math.round(hexPos[0]);
+//   hexPos[1] = Math.round(hexPos[1]) + (hexPos[0] % 2 === 0 ? 0 : Math.sign(hexPos[1]) * 0.5) + (hexPos[1] < 0 ? -2 : -2);
 
-const hexLine = [];
+//   hex.center(...Coords.toCartesian(...hexPos));
+// });
 
-for (let i = 0; i < 360; i += 60) {
-  hexLine.push(Math.cos(i * toRad));
-  hexLine.push(Math.sin(i * toRad));
-}
+// draw.click(({ screenX, screenY }) => {
+//   let point = draw.point(screenX, screenY);
+//   let hexPos = Coords.toHex(point.x, point.y);
+//   hexPos[0] = Math.round(hexPos[0]);
+//   hexPos[1] = Math.round(hexPos[1]) + (hexPos[0] % 2 === 0 ? 0 : Math.sign(hexPos[1]) * 0.5) + (hexPos[1] < 0 ? -2 : -2);
 
-let hex = draw.polygon(hexLine.map(n => n / 2))
-  .fill('none')
-  .stroke({ color: '#f06', width: .1, linecap: 'round', linejoin: 'round' });
-
-for (let h of b.hexes) {
-  let newHex = hex.clone().center(...Coords.toCartesian(h.x, h.y));
-  draw.add(newHex);
-}
+//   hex.center(...Coords.toCartesian(...hexPos));
+// })

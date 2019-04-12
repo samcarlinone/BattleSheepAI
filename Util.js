@@ -27,12 +27,15 @@ class Range {
   }
 }
 
-/** Conversion constant for degrees to radians */
-const toRad = Math.PI / 180;
-
 /** Color constants */
 const red = 'red';
 const blue = 'blue';
+
+/** Conversion constant for degrees to radians */
+const toRad = Math.PI / 180;
+
+const xScale = (1 + Math.cos(60 * toRad)) / 2;
+const yScale = Math.sin(60 * toRad);
 
 /** Coords class for working with coordinate systems */
 let Coords = deepFreeze({
@@ -44,11 +47,11 @@ let Coords = deepFreeze({
   NW: 5,
   offsets: [[0, -1], [1, -0.5], [1, 0.5], [0, 1], [-1, 0.5], [-1, -0.5]],
   // Only transform for odd columns
-  toCartesian: (x, y) => [x * (1 + Math.cos(60 * toRad)) / 2, y * Math.sin(60 * toRad)],
-  toHex: (x, y) => [x, x % 2 === 0 ? y : y - Math.sin(60 * toRad)]
+  toCartesian: (x, y) => [x * xScale, y * yScale],
+  toHex: (x, y) => [x / xScale,  y / yScale],
 });
 
-/** Recursively 'freeze' an Object effectively rendering it const */
+/** Recursively 'freeze' an Object (effectively rendering it const) */
 function deepFreeze(object) {
   // Retrieve the property names defined on object
   var propNames = Object.getOwnPropertyNames(object);
