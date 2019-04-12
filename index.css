@@ -7,9 +7,9 @@ body {
   align-items: center;
 }
 
-#main {
+#main, svg {
   width: 100vmin;
-  height: 100vmax;
+  height: 100vmin;
 }
 
 .hex {

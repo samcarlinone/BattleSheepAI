@@ -13,7 +13,8 @@ azul.color = blue;
 azul.count = 10;
 
 let renderer = new BoardRenderer(3);
-renderer.Render(b);
+let callbacks = {'click': function() {b.AddHex(...this); renderer.Render(b, false, callbacks);} }
+renderer.Render(b, false, callbacks);
 
 // Move hex to mouse
 // draw.mousemove(({ screenX, screenY }) => {

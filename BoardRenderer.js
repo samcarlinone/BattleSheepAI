@@ -14,7 +14,8 @@ class BoardRenderer {
     this.hexes = this.draw.group();
   }
 
-  Render = (board) => {
+  /** Render the board, available listeners at: https://svgjs.com/docs/2.7/events/, listener this = [pos] */
+  Render = (board, skip = false, listeners = {}) => {
     let points = board.GetPoints(this.margin);
 
     // Clear old
@@ -31,10 +32,15 @@ class BoardRenderer {
       let source = board.GetHex(...points[i]);
       let pos = Coords.toCartesian(...points[i]);
 
+      if (skip && !source)
+        continue;
+
       let newHex = hex
         .clone()
         .center(...pos)
-        .addClass(source ? 'hex' : 'no-hex');
+        .addClass(source ? 'hex' : 'hex no-hex');
+
+      Object.entries(listeners).forEach(listener => newHex.on(...listener, points[i]))
 
       if (source) {
         this.hexes.add(newHex);
