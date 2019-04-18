@@ -1,14 +1,8 @@
 class BoardRenderer {
-  constructor(margin) {
+  constructor(main, draw, margin) {
+    this.main = main;
+    this.draw = draw;
     this.margin = margin;
-
-    this.draw = SVG().addTo('#main');
-
-    this.hexLine = [];
-    for (let i = 0; i < 360; i += 60) {
-      this.hexLine.push(Math.cos(i * toRad) / 2);
-      this.hexLine.push(Math.sin(i * toRad) / 2);
-    }
 
     this.nullHexes = this.draw.group();
     this.hexes = this.draw.group();
@@ -16,6 +10,7 @@ class BoardRenderer {
 
   /** Render the board, available listeners at: https://svgjs.com/docs/2.7/events/, listener this = [pos] */
   Render = (board, skip = false, listeners = {}) => {
+    this.main.viewbox(...this.GetViewbox(board));
     let points = board.GetPoints(this.margin);
 
     // Clear old
@@ -23,9 +18,8 @@ class BoardRenderer {
     this.hexes.remove();
     this.nullHexes = this.draw.group();
     this.hexes = this.draw.group();
-    this.draw.viewbox(board.x.min - this.margin, board.y.min - this.margin, board.x.count() + 2 * this.margin, board.y.count() + 2 * this.margin);
 
-    let hex = this.draw.polygon(this.hexLine)
+    let hex = this.draw.polygon(HexLine)
       .remove();
 
     for (let i = 0; i < points.length; i++) {
@@ -54,5 +48,10 @@ class BoardRenderer {
       else
         this.nullHexes.add(newHex)
     }
+  }
+
+  /** Gets the smallest viewbox that can contain the Board */
+  GetViewbox = (board) => {
+    return [board.x.min - this.margin, board.y.min - this.margin, board.x.count() + 2 * this.margin, board.y.count() + 2 * this.margin];
   }
 }

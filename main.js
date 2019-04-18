@@ -1,36 +1,35 @@
+let boardDefs = [
+  [[0,0],[-1,0.5],[1,0.5],[0,1],[-1,-1.5],[-1,-0.5],[1,-0.5],[0,-1],[0,-2],[1,-1.5],[2,-1],[2,0],[2,1],[1,1.5],[0,2],[-1,1.5],[-2,1],[-2,0],[-2,-1],[-3,-0.5],[-3,0.5],[-3,1.5],[-2,2],[3,-0.5],[3,0.5],[1,2.5],[2,2],[-2,-2],[-1,-2.5],[1,-2.5],[2,-2],[2,-3]]
+];
+
 let b = new Board();
-b.AddHex(-1, 0.5);
-b.AddHex(1, 0.5);
-b.AddHex(0, 1);
 
-rojo = b.GetHex(0, 0);
-azul = b.GetHex(-1, 0.5);
+let gameMode = true;
 
-rojo.color = red;
-rojo.count = 1;
+let main = SVG().addTo('#main');
+let boardG = main.group();
 
-azul.color = blue;
-azul.count = 10;
+if (gameMode) {
+  let def = boardDefs[Math.floor(Math.random() * boardDefs.length)];
+  for (let point of def)
+    b.AddHex(...point);
+  
+  let renderer = new BoardRenderer(main, boardG, 0);
+  renderer.Render(b, true);
 
-let renderer = new BoardRenderer(3);
-let callbacks = {'click': function() {b.AddHex(...this); renderer.Render(b, false, callbacks);} }
-renderer.Render(b, false, callbacks);
+}
+else {
+  b.AddHex(-1, 0.5);
+  b.AddHex(1, 0.5);
+  b.AddHex(0, 1);
 
-// Move hex to mouse
-// draw.mousemove(({ screenX, screenY }) => {
-//   let point = draw.point(screenX, screenY);
-//   let hexPos = Coords.toHex(point.x, point.y);
-//   hexPos[0] = Math.round(hexPos[0]);
-//   hexPos[1] = Math.round(hexPos[1]) + (hexPos[0] % 2 === 0 ? 0 : Math.sign(hexPos[1]) * 0.5) + (hexPos[1] < 0 ? -2 : -2);
+  let renderer = new BoardRenderer(main, boardG, 3);
+  let callbacks = {'click': function() {
+    b.AddHex(...this);
+    renderer.Render(b, false, callbacks);
+    console.clear();
+    console.log(b.hexes.map(hex => [hex.x, hex.y]));
+  }};
 
-//   hex.center(...Coords.toCartesian(...hexPos));
-// });
-
-// draw.click(({ screenX, screenY }) => {
-//   let point = draw.point(screenX, screenY);
-//   let hexPos = Coords.toHex(point.x, point.y);
-//   hexPos[0] = Math.round(hexPos[0]);
-//   hexPos[1] = Math.round(hexPos[1]) + (hexPos[0] % 2 === 0 ? 0 : Math.sign(hexPos[1]) * 0.5) + (hexPos[1] < 0 ? -2 : -2);
-
-//   hex.center(...Coords.toCartesian(...hexPos));
-// })
+  renderer.Render(b, false, callbacks);
+}

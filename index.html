@@ -1,9 +1,27 @@
 <html>
   <head>
     <title>Battle Sheep AI</title>
+    <link href="https://fonts.googleapis.com/css?family=Baloo+Tamma|Ubuntu:700" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
   </head>
   <body>
+    <div class="sidebar">
+      <div class="avatar-container">
+        <div class="avatar">
+          <img src="icons/businessman.svg" id="player"/>
+          <img src="icons/robot.svg" id="ai"/>
+        </div>
+      </div>
+
+      <div class="controls">
+        Testing: 1, 2, 3...
+        <div class="split-controls">
+
+          <input id="split" autofocus type="range" step="1" min="1" max="15"/>
+        </div>
+      </div>
+    </div>
+    
     <div id="main"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.0.12/svg.min.js"></script>

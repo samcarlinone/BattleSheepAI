@@ -201,13 +201,13 @@ class Board {
   GetPoints = (margin) => {
     let result = [];
 
-    for (let x = this.x.min - margin; x < this.x.max + margin; x++) {
+    for (let x = this.x.min - margin; x <= this.x.max + margin; x++) {
       if (x % 2 == 0) {
-        for (let y = this.y.min - margin; y < this.y.max + margin; y++)
+        for (let y = this.y.min - margin; y <= this.y.max + margin; y++)
           result.push([x, y]);
       }
       else {
-        for (let y = this.y.min - margin - 0.5; y < this.y.max + margin + 0.5; y++)
+        for (let y = this.y.min - margin - 0.5; y <= this.y.max + margin + 0.5; y++)
           result.push([x, y]);
       }
     }

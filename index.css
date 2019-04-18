@@ -5,6 +5,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 20pt;
 }
 
 #main, svg {
@@ -12,6 +15,55 @@ body {
   height: 100vmin;
 }
 
+/* Sidebar */
+.sidebar {
+  width: 50vmin;
+  height: 100vh;
+  padding: 5vmin;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Avatar */
+.avatar-container {
+  width: 14vmin;
+  height: 14vmin;
+  perspective: 600px;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+
+  position: relative;
+
+  transition: transform 500ms cubic-bezier(0.465, -0.580, 0.550, 1.540);
+  transform-style: preserve-3d;
+}
+
+.avatar.is-ai {
+  transform: rotateY(180deg);
+}
+
+.avatar img {
+  position: absolute;
+  width:100%;
+  height:100%;
+  backface-visibility: hidden;
+}
+
+#ai {
+  transform: rotateY(180deg);
+}
+
+/* Controls */
+.controls {
+  margin: auto;
+}
+
+/* Board */
 .hex {
   stroke-linejoin: round;
   stroke-linecap: round;

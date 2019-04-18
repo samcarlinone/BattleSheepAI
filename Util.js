@@ -37,6 +37,14 @@ const toRad = Math.PI / 180;
 const xScale = (1 + Math.cos(60 * toRad)) / 2;
 const yScale = Math.sin(60 * toRad);
 
+/** HexLine = hexagon polypoints */
+const HexLine = [];
+
+for (let i = 0; i < 360; i += 60) {
+  HexLine.push(Math.cos(i * toRad) / 2);
+  HexLine.push(Math.sin(i * toRad) / 2);
+}
+
 /** Coords class for working with coordinate systems */
 let Coords = deepFreeze({
    N: 0,
