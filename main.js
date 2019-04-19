@@ -129,8 +129,15 @@ function Begin() {
 
 function Play() {
   // Controls
-  if (playerTurn)
-    controls.innerHTML = '<span> Select a red stack </span>';
+  if (playerTurn) {
+    if (!selected)
+      controls.innerHTML = '<span> Select a red stack </span>';
+    else {
+      if (!target)
+        controls.innerHTML = '<span> Select a target direction </span>';
+    }
+  }
+    
 
   // Renderer
   let renderer = new BoardRenderer(main, boardG);
@@ -141,11 +148,17 @@ function Play() {
 
     let hex = board.GetHex(...this);
 
+    // Red stack to select?
     if (hex.color === red)
       selected = this;
     
-    if (hex.color === null)
-      target = this;
+    // Can we get a line?
+    if (selected && hex.color === null) {
+      let direction = board.GetDirection(board.GetHex(...selected), board.GetHex(...this));
+
+      if (direction !== null)
+        target = direction;
+    }
 
     Game();
   };
@@ -153,12 +166,19 @@ function Play() {
   let highlights = [];
 
   if (selected) 
-    highlights.push({ point: selected, class: 'selected-hex'});
+    highlights.push({ point: selected, class: 'selected-hex', zIndex: 2 });
   
-  if (target)
-    highlights.push({ point: target, class: 'target-hex'});
+  if (target !== null) {
+    let hex = board.GetHex(...selected);
 
-  console.log(highlights);
+    while(hex.links[target] && hex.links[target].color === null) {
+      hex = hex.links[target];
+
+      // Line style or target style
+      let style = hex.links[target] && !hex.links[target].color ? { class: 'line-hex', zIndex: 0 } : { class: 'target-hex', zIndex: 1 };
+      highlights.push({ point: [hex.x, hex.y], ...style});
+    }
+  }
 
   renderer.Render(board, true, { click }, highlights);
 }

@@ -138,6 +138,33 @@ class Board {
       return hex;
   }
 
+  /** Get the direction from one hex to another (or null if not on the same line) */
+  GetDirection = (from, to) => {
+    let x = to.x - from.x;
+    let y = to.y - from.y;
+
+    console.log(x, y);
+
+    if (x === 0) {
+      // Straight up or down
+      return y > 0 ? Coords.S : Coords.N;
+    } else {
+      // In a line?
+      if (Math.abs(x / y) === 2) {
+        if (x < 0) {
+          // To the left
+          return y > 0 ? Coords.SW : Coords.NW;
+        }
+        else {
+          // To the right
+          return y > 0 ? Coords.SE : Coords.NE;
+        }
+      }
+    }
+
+    return null;
+  }
+
   /** Check whether a move is valid */
   IsValid = (move) => {
     let start = this.GetHex(move.x, move.y);

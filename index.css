@@ -88,6 +88,11 @@ body {
   stroke: hsl(240, 47%, 50%);
 }
 
+.line-hex {
+  fill: hsl(0, 40%, 93%);
+  stroke: hsl(0, 46%, 63%);
+}
+
 .target-hex {
   fill: hsl(0, 60%, 83%);
   stroke: hsl(0, 47%, 50%);

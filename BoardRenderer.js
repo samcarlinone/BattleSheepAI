@@ -43,6 +43,7 @@ class BoardRenderer {
 
       if (highlight) {
         newHex.addClass(highlight.class);
+        newHex.zIndex = highlight.zIndex;
         highlighted.push(newHex);
       }
 
@@ -65,6 +66,8 @@ class BoardRenderer {
       else
         this.nullHexes.add(newHex)
     }
+
+    highlighted.sort((a, b) => a.zIndex - b.zIndex);
 
     for (let hex of highlighted) {
       hex.front();
