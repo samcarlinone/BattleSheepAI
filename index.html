@@ -2,7 +2,9 @@
   <head>
     <title>Battle Sheep AI</title>
     <link href="https://fonts.googleapis.com/css?family=Baloo+Tamma|Ubuntu:700" rel="stylesheet">
-    <link rel="stylesheet" href="index.css">
+    <link href="normalize.css" rel="stylesheet">
+    <link href="elements.css" rel="stylesheet">
+    <link href="index.css" rel="stylesheet">
   </head>
   <body>
     <div class="sidebar">
@@ -17,9 +19,14 @@
         Testing: 1, 2, 3...
         <div class="split-controls">
 
-          <input id="split" autofocus type="range" step="1" min="1" max="15"/>
+          <input id="split" type="range" step="1" min="1" max="15"/>
         </div>
       </div>
+
+      <div class="ai-thinking">
+        <img src="icons/hourglass.svg" id="hourglass"/>
+      </div>
+      
     </div>
     
     <div id="main"></div>
@@ -30,6 +37,7 @@
     <script src="Util.js"></script>
     <script src="Board.js"></script>
     <script src="BoardRenderer.js"></script>
+    <script src="Debug.js"></script>
     <script src="main.js"></script>
   </body>
 </html>

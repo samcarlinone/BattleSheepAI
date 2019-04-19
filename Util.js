@@ -46,7 +46,7 @@ for (let i = 0; i < 360; i += 60) {
 }
 
 /** Coords class for working with coordinate systems */
-let Coords = deepFreeze({
+const Coords = deepFreeze({
    N: 0,
   NE: 1,
   SE: 2,
@@ -57,6 +57,11 @@ let Coords = deepFreeze({
   // Only transform for odd columns
   toCartesian: (x, y) => [x * xScale, y * yScale],
   toHex: (x, y) => [x / xScale,  y / yScale],
+});
+
+/** Vector class for working with array based Vec2s */
+const Vector = deepFreeze({
+  add: (v1, v2) => [v1[0] + v2[0], v1[1] + v2[1]]
 });
 
 /** Recursively 'freeze' an Object (effectively rendering it const) */
@@ -73,4 +78,14 @@ function deepFreeze(object) {
   }
 
   return Object.freeze(object);
+}
+
+/** Shuffles an array in place */
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+  }
+
+  return array;
 }

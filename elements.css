@@ -1,0 +1,15 @@
+button {
+  background: #fff;
+  border: 1px solid black;
+  padding: 4px;
+  outline: none;
+  padding: 3px 8px;
+}
+
+button:hover {
+  background: #eee;
+}
+
+button:active {
+  background: #ddd;
+}
