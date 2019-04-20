@@ -12,7 +12,7 @@ let def = boardDefs[Math.floor(Math.random() * boardDefs.length)];
 for (let point of def)
   board.AddHex(...point);
 
-// AI Worker thread
+// AI Worker thread (if you get an error here follow the instructions in README.md)
 let aiWorker = new Worker('Ai.js');
 aiWorker.onmessage = AiMessage;
 
