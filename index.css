@@ -85,17 +85,17 @@ body {
 
 .selected-hex {
   fill: hsl(240, 60%, 83%);
-  stroke: hsl(240, 47%, 50%);
+  stroke: hsl(0, 47%, 50%);
 }
 
 .line-hex {
-  fill: hsl(0, 40%, 93%);
-  stroke: hsl(0, 46%, 63%);
+  /* fill: hsl(0, 40%, 93%); */
+  stroke: hsla(0, 46%, 63%, 0.5);
 }
 
-.target-hex {
-  fill: hsl(0, 60%, 83%);
-  stroke: hsl(0, 47%, 50%);
+.white-hex {
+  /* fill: hsl(0, 60%, 83%); */
+  stroke: hsla(0, 47%, 50%, 0.5);
 }
 
 .no-hex {
@@ -109,6 +109,10 @@ body {
 
 .blue-circle {
   fill: rgb(100, 100, 185);
+}
+
+.white-circle {
+  fill: rgb(204, 137, 146);
 }
 
 .hex-label {

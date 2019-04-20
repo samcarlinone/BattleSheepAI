@@ -143,8 +143,6 @@ class Board {
     let x = to.x - from.x;
     let y = to.y - from.y;
 
-    console.log(x, y);
-
     if (x === 0) {
       // Straight up or down
       return y > 0 ? Coords.S : Coords.N;

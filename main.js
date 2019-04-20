@@ -4,9 +4,9 @@ let boardDefs = [
 
 // Create and populate board
 let board = new Board();
-
 let main = SVG().addTo('#main');
 let boardG = main.group();
+let renderer = new BoardRenderer(main, boardG);
 
 let def = boardDefs[Math.floor(Math.random() * boardDefs.length)];
 for (let point of def)
@@ -19,26 +19,24 @@ let controls = document.querySelector('.controls');
 // Game states
 const pick = 'pick';
 const play = 'play';
+const ai_go = 'ai_go';
 const make = 'make';
 
 // Pick vars
 let start = null;
 
 // Play vars
-let playerTurn = true;
 let selected = null;
+let selectedCount = 0;
 let target = null;
+let targetHex = null;
 
-let reds = [];
-let blues = [];
-
-// Game vars
-let state = pick;
+let take = 1;
 
 // Begin the game
-Game();
+Game(pick);
 
-function Game() {
+function Game(state) {
   if (state === pick)
     Pick();
     
@@ -47,6 +45,9 @@ function Game() {
 
   if (state === make)
     Debug();
+
+  if (state === ai_go)
+    AiGo();
 }
 
 function Pick() {
@@ -61,8 +62,6 @@ function Pick() {
   }
   
   // Renderer
-  let renderer = new BoardRenderer(main, boardG);
-
   function click() {
     let border = false;
     for (let offset of Coords.offsets) {
@@ -83,10 +82,10 @@ function Pick() {
     else
       start = -1;
 
-    Game();
+    Game(pick);
   };
 
-  renderer.Render(board, true, { click });
+  renderer.Render(board, { click });
 }
 
 function Begin() {
@@ -118,51 +117,96 @@ function Begin() {
   // Update and add starting hexes
   best.color = blue;
   best.count = 16;
-  blues.push(best);
-
-  reds.push(board.GetHex(...start));
 
   // Update state
-  state = play;
-  Game();
+  Game(play);
+}
+
+function ClearPlay() {
+  if (selected) {
+    board.GetHex(...selected).count = selectedCount;
+
+    if (target !== null) {
+      targetHex.count = 0;
+      targetHex.color = null;
+      target = null;
+    }
+  }
 }
 
 function Play() {
+  // Update sidebar class
+  sidebar.classList.remove('is-ai');
+
   // Controls
-  if (playerTurn) {
-    if (!selected)
-      controls.innerHTML = '<span> Select a red stack </span>';
+  if (!selected) {
+    controls.innerHTML = '<span> Select a red stack </span>';
+  }
+  else {
+    if (target === null) {
+      controls.innerHTML = '<span> Select a target direction </span>';
+    }
     else {
-      if (!target)
-        controls.innerHTML = '<span> Select a target direction </span>';
+      let split =  document.querySelector('#split');
+
+      // Ensure take remains bounded [1, selectedCount -1]
+      take = Math.max(1, Math.min(take, selectedCount - 1));
+
+      if (!split) {
+        controls.innerHTML = `
+          <span> Move how many? </span>
+          <div class="split-controls">
+            <input id="split" type="range" value="${take}" step="1" min="1" max="${selectedCount - 1}"/>
+            <label id="split-label">${take}</label>
+          </div>
+          <button onclick="PlayerMove()"> Move </button>
+        `;
+
+        document.querySelector('#split').oninput = e => { take = e.target.value; Play(); }
+        window.onwheel = e => { take += Math.sign(e.wheelDelta); Play(); };
+      }
+      else {
+        split.value = take;
+        document.querySelector('#split-label').innerText = take;
+      }
     }
   }
-    
 
-  // Renderer
-  let renderer = new BoardRenderer(main, boardG);
+  // Update
+  if (selected && target !== null) {
+    board.GetHex(...selected).count = selectedCount - take;
+    targetHex.count = take;
+  }
 
+  // Click on board action
   function click() {
-    if (!playerTurn)
-      return;
+    ClearPlay();
 
+    // Select new
     let hex = board.GetHex(...this);
 
     // Red stack to select?
-    if (hex.color === red)
+    if (hex.color === red && hex.count > 1) {
       selected = this;
+      selectedCount = hex.count;
+    }
     
     // Can we get a line?
     if (selected && hex.color === null) {
-      let direction = board.GetDirection(board.GetHex(...selected), board.GetHex(...this));
+      let src = board.GetHex(...selected);
+      let direction = board.GetDirection(src, hex);
 
-      if (direction !== null)
+      if (direction !== null && src.links[direction] !== null) {
         target = direction;
+        targetHex = board.Trace(selected[0], selected[1], target);
+        targetHex.color = white;
+      }
     }
 
-    Game();
+    Game(play);
   };
 
+  // Push highlights for board renderer
   let highlights = [];
 
   if (selected) 
@@ -171,14 +215,36 @@ function Play() {
   if (target !== null) {
     let hex = board.GetHex(...selected);
 
-    while(hex.links[target] && hex.links[target].color === null) {
+    while(hex.links[target] && (hex.links[target].color === null)) {
       hex = hex.links[target];
-
-      // Line style or target style
-      let style = hex.links[target] && !hex.links[target].color ? { class: 'line-hex', zIndex: 0 } : { class: 'target-hex', zIndex: 1 };
-      highlights.push({ point: [hex.x, hex.y], ...style});
+      highlights.push({ point: Vector.from(hex), class: 'line-hex', zIndex: 0 });
     }
+
+    highlights.push({ point: Vector.from(targetHex), class: 'target', zIndex: 1 });
   }
 
-  renderer.Render(board, true, { click }, highlights);
+  renderer.Render(board, { click }, highlights);
+}
+
+function PlayerMove() {
+  let dir = target;
+  ClearPlay();
+
+  if (!board.Execute(new Move(dir, take, selected[0], selected[1])))
+    alert('The given move could not be executed');
+
+  selected = null;
+
+  Game(ai_go);
+}
+
+function AiGo() {
+  // Update sidebar class
+  sidebar.classList.add('is-ai');
+
+  // Begin thinking worker
+  // TODO: Thinking worker
+  window.setTimeout(() => Game(play), 2000);
+
+  renderer.Render(board);
 }

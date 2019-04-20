@@ -1,8 +1,9 @@
 class BoardRenderer {
-  constructor(main, draw, margin = 0) {
+  constructor(main, draw, margin = 0, skip = true) {
     this.main = main;
     this.draw = draw;
     this.margin = margin;
+    this.skip = skip;
 
     this.nullHexes = this.draw.group();
     this.hexes = this.draw.group();
@@ -10,7 +11,7 @@ class BoardRenderer {
   }
 
   /** Render the board, available listeners at: https://svgjs.com/docs/2.7/events/, listener this = [pos] */
-  Render = (board, skip = false, listeners = {}, highlights = []) => {
+  Render = (board, listeners = {}, highlights = []) => {
     this.main.viewbox(...this.GetViewbox(board));
     let points = board.GetPoints(this.margin);
 
@@ -30,13 +31,14 @@ class BoardRenderer {
       let source = board.GetHex(...points[i]);
       let pos = Coords.toCartesian(...points[i]);
 
-      if (skip && !source)
+      if (this.skip && !source)
         continue;
 
       let newHex = hex
         .clone()
         .center(...pos)
-        .addClass(source ? 'hex' : 'hex no-hex');
+        .addClass(source ? 'hex' : 'hex no-hex')
+        .addClass(source.color + '-hex');
 
       // highlights
       let highlight = highlights.find(h => h.point[0] === points[i][0] && h.point[1] === points[i][1]);

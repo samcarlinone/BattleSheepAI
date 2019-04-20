@@ -30,6 +30,7 @@ class Range {
 /** Color constants */
 const red = 'red';
 const blue = 'blue';
+const white = 'white';
 
 /** Conversion constant for degrees to radians */
 const toRad = Math.PI / 180;
@@ -61,7 +62,8 @@ const Coords = deepFreeze({
 
 /** Vector class for working with array based Vec2s */
 const Vector = deepFreeze({
-  add: (v1, v2) => [v1[0] + v2[0], v1[1] + v2[1]]
+  add: (v1, v2) => [v1[0] + v2[0], v1[1] + v2[1]],
+  from: hex => [ hex.x, hex.y ]
 });
 
 /** Recursively 'freeze' an Object (effectively rendering it const) */
