@@ -12,6 +12,10 @@ let def = boardDefs[Math.floor(Math.random() * boardDefs.length)];
 for (let point of def)
   board.AddHex(...point);
 
+// AI Worker thread
+let aiWorker = new Worker('Ai.js');
+aiWorker.onmessage = AiMessage;
+
 // HTML refs
 let sidebar = document.querySelector('.sidebar');
 let controls = document.querySelector('.controls');
@@ -20,6 +24,7 @@ let controls = document.querySelector('.controls');
 const pick = 'pick';
 const play = 'play';
 const ai_go = 'ai_go';
+const over = 'over';
 const make = 'make';
 
 // Pick vars
@@ -37,17 +42,30 @@ let take = 1;
 Game(pick);
 
 function Game(state) {
-  if (state === pick)
+  if (state === pick) {
     Pick();
-    
-  if (state === play)
-    Play();
-
-  if (state === make)
+    return;
+  }
+  
+  if (state === make) {
     Debug();
+    return;
+  }
 
-  if (state === ai_go)
+  let redMove = board.HasMoves(red);
+  let blueMove = board.HasMoves(blue);
+    
+  if (blueMove && (state === ai_go || (state === play && !redMove))) {
     AiGo();
+    return;
+  }
+
+  if (redMove && (state === play || (state === ai_go && !blueMove))) {
+    Play();
+    return;
+  }
+
+  Over();
 }
 
 function Pick() {
@@ -243,8 +261,19 @@ function AiGo() {
   sidebar.classList.add('is-ai');
 
   // Begin thinking worker
-  // TODO: Thinking worker
-  window.setTimeout(() => Game(play), 2000);
+  aiWorker.postMessage(board.GetData());
 
+  // Render the board
+  renderer.Render(board);
+}
+
+function AiMessage({ data: { move } }) {
+  board.Execute(move);
+  Game(play);
+}
+
+function Over() {
+  sidebar.classList.remove('is-ai');
+  controls.innerHTML = '<span> Game Over </span>';
   renderer.Render(board);
 }

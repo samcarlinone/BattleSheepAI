@@ -31,6 +31,20 @@ class Board {
     this._safe = true; // Enable / disable potentially performance degrading safety checks
   }
 
+  /** Gets the board internal state */
+  GetData = () => {
+    return { hexes: this.hexes }
+  }
+
+  /** Sets the board internal state */
+  SetData = data => {
+    for (let h of data.hexes) {
+      let hex = this.AddHex(h.x, h.y);
+      hex.color = h.color;
+      hex.count = h.count;
+    }
+  }
+
   _hexPos = (x, y) => {
     if (!this.x.contains(x) || !this.y.contains(y))
       return null;
@@ -136,6 +150,26 @@ class Board {
       return null;
     else
       return hex;
+  }
+
+  /** Does a given hex have a place it can move to? */
+  CanMove = hex => {
+    if (hex.color === null || hex.count === 1)
+      return false;
+
+    for (let i = 0; i < 6; i++) {
+      let move = hex.links[i];
+
+      if (move !== null && (move.color === null || move.color === white))
+        return true;
+    }
+
+    return false;
+  }
+
+  /** Does the given color have any hexes with an available move (returns hex) */
+  HasMoves = color => {
+    return this.hexes.find(hex => hex.color === color && this.CanMove(hex));
   }
 
   /** Get the direction from one hex to another (or null if not on the same line) */
