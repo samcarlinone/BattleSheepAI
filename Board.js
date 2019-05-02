@@ -167,7 +167,7 @@ class Board {
     return false;
   }
 
-  /** Does the given color have any hexes with an available move (returns hex) */
+  /** Does the given color have any hexes with an available move (returns hex or undefined) */
   HasMoves = color => {
     return this.hexes.find(hex => hex.color === color && this.CanMove(hex));
   }
