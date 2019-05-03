@@ -3,9 +3,13 @@
 ## Installing the Project
 - Install node.js
 - `npm install -g http-server`
+- OR 
+`npm install -g static-server`
 
 ## Running the Project
 - `http-server -c-1`
+OR
+- `static-server -z`
 
 ### Attribution
 - Businessman by arif fajar yulianto from the Noun Project
