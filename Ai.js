@@ -79,7 +79,7 @@ function Actions(board) {
 
 /** Utility: Returns the Utility score for a given board */
 function Utility(board) {
-  // TODO: Implement
+  // TODO: Complete implementation
   var utility = 0.0;
   var hexes = board.GetData();
   
