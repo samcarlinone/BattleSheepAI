@@ -74,7 +74,17 @@ function UpdateColor(isMax) {
 /** Actions: Returns [Move] for a given board */
 function Actions(board) {
   // TODO: Implement
-  return [];
+  var hexes = board.GetData();
+  var moves = [Move];
+  for(let h of hexes)
+    if (h.color === this.currentColor)
+      for(let c of h.links)
+        if (board.IsOpen(c)) 
+          let move;
+          move.constructor(c, 1, h.x, h.y); 
+          moves.push(move);
+  
+  return moves;
 }
 
 /** Utility: Returns the Utility score for a given board */
