@@ -80,7 +80,21 @@ function Actions(board) {
 /** Utility: Returns the Utility score for a given board */
 function Utility(board) {
   // TODO: Implement
-  return 0;
+  var utility = 0.0;
+  var hexes = board.GetData();
+  
+  for(let h of hexes){
+    //count # of moves our own stacks can make
+    if(h.color === this.currentColor) 
+      for (let linked of h.links) 
+        if (board.IsOpen(linked))
+          utility += 1;
+    
+    //check if our opponent can NOT move
+    if((h.color !== this.currentColor) && !(board.CanMove(h)))
+      utility = utility + h.count;
+  }
+  return utility;
 }
 
 /** TerminalTest */
