@@ -28,11 +28,13 @@ function MaxValue(board, a, b) {
   if (TerminalTest(board)) return Utility(board);
 
   let v = Number.MIN_VALUE;
-
-  for (let move of Actions(board)) {
-    board.Execute(move);
+  let moves = Actions(board);
+  if(moves.length === 0) moves = ['no-op'];
+  
+  for (let move of moves) {
+    if (move !== 'no-op') board.Execute(move);
     v = Math.max(v, MinValue(board, a, b));
-    board.Revert(1);
+    if (move !== 'no-op') board.Revert(1);
 
     if (v >= b) return v;
     a = Math.max(a, v);
@@ -46,16 +48,18 @@ function MinValue(board, a, b) {
   if (TerminalTest(board)) return Utility(board);
 
   let v = Number.MAX_VALUE;
-
-  for (let move of Actions(board)) {
-    board.Execute(move);
+  
+  let moves = Actions(board);
+  if (moves.length === 0) moves = ['no-op'];
+  
+  for (let move of moves) {
+    if (move !== 'no-op') board.Execute(move);
     v = Math.min(v, MaxValue(board, a, b));
-    board.Revert(1);
+    if (move !== 'no-op') board.Revert(1);
 
     if (v <= a) return v;
     b = Math.min(b, v);
   }
-
   return v;
 }
 
@@ -74,18 +78,14 @@ function UpdateColor(isMax) {
 /** Actions: Returns [Move] for a given board */
 function Actions(board) {
   // TODO: Complete implementation
-  var hexes = board.GetData();
-  var moves = [Move];
+  var hexes = board.hexes;
+  var moves = [];
   for(let h of hexes) {
     if (h.color === this.currentColor) {
       for(let c of h.links) {
-        //rather than checking just one in every direction, change to check all the way to the limit in every dir
+        //rather than checking just one in every direction, use Trace
         if (board.IsOpen(c)) {
-          let move;
-          if(h.count > 1) {
-            move.constructor(c, 1, h.x, h.y); 
-            moves.push(move);
-          }
+          moves.push(new Move(c, 1, h.x, h.y))
         }
       }
     }
@@ -106,17 +106,18 @@ function Utility(board) {
         if (board.IsOpen(linked))
           utility += 1;
     
-    //check if our opponent can NOT move
-    if((h.color !== this.currentColor) && !(board.CanMove(h)))
+    //check if our opponent has no moves
+    if((h.color !== this.currentColor) && (h.color !== null) && !(board.CanMove(h)))
       utility = utility + h.count;
+
+    //check if we have no moves
+    if(!h.CanMove)
+      utility = utility - 1;
   }
   return utility;
 }
 
 /** TerminalTest */
 function TerminalTest(board) {
-  if (board.b <= board.a) 
-    return true; 
-  else 
-    return false; 
+  return(board.hasMoves(currentColor));
 }
