@@ -119,5 +119,5 @@ function Utility(board) {
 
 /** TerminalTest */
 function TerminalTest(board) {
-  return(board.hasMoves(currentColor));
+  return(!board.hasMoves(currentColor));
 }
