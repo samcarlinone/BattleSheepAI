@@ -83,9 +83,10 @@ function Actions(board) {
   for(let h of hexes) {
     if (h.color === this.currentColor) {
       for(let c of h.links) {
-        //rather than checking just one in every direction, use Trace
         if (board.IsOpen(c)) {
-          moves.push(new Move(c, 1, h.x, h.y))
+          for(var numTokens = 1; numTokens < h.count; numTokens++) {
+            moves.push(new Move(c, numTokens, h.x, h.y))
+          }
         }
       }
     }
@@ -103,16 +104,15 @@ function Utility(board) {
     //count # of moves our own stacks can make
     if(h.color === this.currentColor) 
       for (let linked of h.links) 
-        if (board.IsOpen(linked))
-          utility += 1;
+        if (board.IsOpen(linked)) utility += 1;
     
     //check if our opponent has no moves
-    if((h.color !== this.currentColor) && (h.color !== null) && !(board.CanMove(h)))
+    if((h.color !== this.currentColor) && (h.color !== null) && !(board.CanMove(h))) {
       utility = utility + h.count;
+    }
 
     //check if we have no moves
-    if(!h.CanMove)
-      utility = utility - 1;
+    if(!h.CanMove) utility = utility - 1;
   }
   return utility;
 }
