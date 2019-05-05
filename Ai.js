@@ -1,5 +1,8 @@
 importScripts('Board.js', 'Util.js');
 
+//set up timer in case of timeout on large search tree
+var startTime = new Date().getTime();
+
 // Note: this script is only called if blue can make a move
 onmessage = function(e) {
   let board = new Board();
@@ -60,6 +63,7 @@ function MinValue(board, a, b) {
     if (v <= a) return v;
     b = Math.min(b, v);
   }
+
   return v;
 }
 
@@ -81,11 +85,17 @@ function Actions(board) {
   var hexes = board.hexes;
   var moves = [];
   for(let h of hexes) {
+    moves.a
     if (h.color === this.currentColor) {
       for(let c of h.links) {
         if (board.IsOpen(c)) {
           for(var numTokens = 1; numTokens < h.count; numTokens++) {
-            moves.push(new Move(c, numTokens, h.x, h.y))
+            moves.push(new Move(c, numTokens, h.x, h.y));
+            var elapsedTime = new Date().getTime - startTime;
+            if(elapsedTime > 3) {
+              startTime = new Date().getTime;
+              return moves;
+            } 
           }
         }
       }
@@ -102,9 +112,11 @@ function Utility(board) {
   
   for(let h of hexes){
     //count # of moves our own stacks can make
-    if(h.color === this.currentColor) 
-      for (let linked of h.links) 
+    if(h.color === this.currentColor) {
+      for (let linked of h.links) {
         if (board.IsOpen(linked)) utility += 1;
+      }
+    }
     
     //check if our opponent has no moves
     if((h.color !== this.currentColor) && (h.color !== null) && !(board.CanMove(h))) {
@@ -119,5 +131,5 @@ function Utility(board) {
 
 /** TerminalTest */
 function TerminalTest(board) {
-  return(!board.hasMoves(red) && (!board.hasMoves(blue)));
+  return(!board.HasMoves(red) && !board.HasMoves(blue));
 }
