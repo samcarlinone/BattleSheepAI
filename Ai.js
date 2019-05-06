@@ -2,7 +2,7 @@ importScripts('Board.js', 'Util.js');
 
 //set up timer in case of timeout on large search tree
 let startTime;
-let maxThinkTime = 30 * 1000; // Should be in ms
+let maxThinkTime = 25 * 1000; // Should be in ms
 let maxDepth = 5;
 
 // Note: this script is only called if blue can make a move
@@ -157,18 +157,23 @@ function Utility(board) {
   for(let h of hexes){
     //count # of moves our own stacks can make
     if(h.color === startColor) {
-      for (let linked of h.links) {
-        if (board.IsOpen(linked)) utility += h.count;
+      for (let dir = 0; dir < 6; dir++) {
+        let cur = h.links[dir];
+
+        while (board.IsOpen(cur)) {
+          cur = cur.links[dir];
+          utility += h.count;
+        }
       }
     }
     
     //check if our opponent has no moves
     if(h.color !== startColor  && h.color !== null && h.count > 1 && !board.CanMove(h))
-      utility += 200 * h.count;
+      utility += 2000 * h.count;
 
     //check if we have no moves
     if(h.color === startColor && h.count > 1 && !board.CanMove(h))
-      utility -= 500 * h.count;
+      utility -= 5000 * h.count;
   }
 
   return utility;
