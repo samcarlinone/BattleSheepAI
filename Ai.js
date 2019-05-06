@@ -91,11 +91,6 @@ function Actions(board) {
         if (board.IsOpen(c)) {
           for(var numTokens = 1; numTokens < h.count; numTokens++) {
             moves.push(new Move(c, numTokens, h.x, h.y));
-            var elapsedTime = new Date().getTime - startTime;
-            if(elapsedTime > 3) {
-              startTime = new Date().getTime;
-              return moves;
-            } 
           }
         }
       }
@@ -131,5 +126,10 @@ function Utility(board) {
 
 /** TerminalTest */
 function TerminalTest(board) {
+  var elapsedTime = new Date().getTime - startTime;
+  if(elapsedTime > 1) {
+    startTime = new Date().getTime;
+    return moves;
+  } 
   return(!board.HasMoves(red) && !board.HasMoves(blue));
 }
