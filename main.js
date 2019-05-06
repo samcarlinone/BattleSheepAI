@@ -274,6 +274,16 @@ function AiMessage({ data: { move } }) {
 
 function Over() {
   sidebar.classList.remove('is-ai');
-  controls.innerHTML = '<span> Game Over </span>';
+  let result = '<div class="game-over"> Game Over </div>';
+
+  let redTrapped = board.hexes.filter(hex => hex.color === red).map(hex => hex.count - 1).reduce((t, n) => t + n);
+  let blueTrapped = board.hexes.filter(hex => hex.color === blue).map(hex => hex.count - 1).reduce((t, n) => t + n);
+
+  if (redTrapped === blueTrapped)
+    result += '<div class="game-over">Tie!</div>';
+  else
+    result += `<div class="game-over">${blueTrapped < redTrapped ? 'Blue' : 'Red'} Wins!</div>`;
+
+  controls.innerHTML = result;
   renderer.Render(board);
 }

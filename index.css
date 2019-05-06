@@ -32,6 +32,10 @@ body {
   text-decoration: solid underline red;
 }
 
+.game-over {
+  text-align: center;
+}
+
 /* Avatar */
 .avatar-container {
   width: 14vmin;

@@ -2,7 +2,7 @@ importScripts('Board.js', 'Util.js');
 
 //set up timer in case of timeout on large search tree
 let startTime;
-let maxThinkTime = 120 * 1000; // Should be in ms
+let maxThinkTime = 30 * 1000; // Should be in ms
 let maxDepth = 5;
 
 // Note: this script is only called if blue can make a move
@@ -25,8 +25,7 @@ function AlphaBetaSearch(board, color) {
   startTime = Date.now();
   startColor = color;
 
-  let move = MaxMoveValue(board, Number.MIN_VALUE, Number.MAX_VALUE, 0);
-  console.log(move);
+  let move = MaxMoveValue(board, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, 0);
   return move;
 }
 
@@ -34,7 +33,7 @@ function AlphaBetaSearch(board, color) {
 function MaxMoveValue(board, a, b, depth) {
   UpdateColor(true);
 
-  let v = Number.MIN_VALUE;
+  let v = Number.MIN_SAFE_INTEGER;
   let bestMove = null;
   let moves = Actions(board);
   if(moves.length === 0) moves = ['no-op'];
@@ -47,6 +46,7 @@ function MaxMoveValue(board, a, b, depth) {
     if (newV > v) {
       v = newV;
       bestMove = move;
+      console.log(bestMove);
     }
 
     if (move !== 'no-op') board.Revert(1);
@@ -54,9 +54,6 @@ function MaxMoveValue(board, a, b, depth) {
     // if (v >= b) return bestMove; (b will always be max value, so this never works)
     a = Math.max(a, v);
   }
-
-  if (bestMove === null)
-    debugger;
   
   return bestMove;
 }
@@ -65,13 +62,9 @@ function MaxValue(board, a, b, depth) {
   UpdateColor(true);
   if (TerminalTest(board, depth)) return Utility(board);
 
-  let v = Number.MIN_VALUE;
+  let v = Number.MIN_SAFE_INTEGER;
 
   var moves = Actions(board);
-
-  if (moves === undefined || moves.length === 0)
-    debugger;
-
   if(moves.length === 0) moves = ['no-op'];
   
   for (let move of moves) {
@@ -81,13 +74,7 @@ function MaxValue(board, a, b, depth) {
 
     if (v >= b) return v;
     a = Math.max(a, v);
-
-    if (v === Number.MIN_VALUE)
-      debugger;
   }
-
-  if (v === Number.MIN_VALUE)
-      debugger;
 
   return v;
 }
@@ -96,7 +83,7 @@ function MinValue(board, a, b, depth) {
   UpdateColor(false);
   if (TerminalTest(board, depth)) return Utility(board);
 
-  let v = Number.MAX_VALUE;
+  let v = Number.MAX_SAFE_INTEGER;
   
   let moves = Actions(board);
   if (moves.length === 0) moves = ['no-op'];
@@ -152,14 +139,6 @@ function Actions(board) {
         for (let dir = 0; dir < 6; dir++)
           if (open[dir])
             moves.push(new Move(dir, numTokens, h.x, h.y));
-
-      // for(let dir = 0; dir < 6; dir++) {
-      //   if (board.IsOpen(h.links[dir])) {
-      //     for(var numTokens = 1; numTokens < h.count; numTokens++) {
-      //       moves.push(new Move(dir, numTokens, h.x, h.y));
-      //     }
-      //   }
-      // }
     }
   }
 
@@ -196,8 +175,10 @@ function TerminalTest(board, depth) {
   if (depth > maxDepth)
     return true;
 
-  if(Date.now() - startTime > maxThinkTime)
+  if(Date.now() - startTime > maxThinkTime) {
+    console.log('Time limit reached');
     return true;
+  }
 
   return !board.HasMoves(red) && !board.HasMoves(blue);
 }
