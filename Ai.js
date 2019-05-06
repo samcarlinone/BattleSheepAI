@@ -46,7 +46,6 @@ function MaxMoveValue(board, a, b, depth) {
     if (newV > v) {
       v = newV;
       bestMove = move;
-      console.log(bestMove);
     }
 
     if (move !== 'no-op') board.Revert(1);
@@ -160,11 +159,11 @@ function Utility(board) {
     
     //check if our opponent has no moves
     if(h.color !== startColor  && h.color !== null && h.count > 1 && !board.CanMove(h))
-      utility += 20 * h.count;
+      utility += 200 * h.count;
 
     //check if we have no moves
     if(h.color === startColor && h.count > 1 && !board.CanMove(h))
-      utility -= 50 * h.count;
+      utility -= 500 * h.count;
   }
 
   return utility;

@@ -287,3 +287,27 @@ function Over() {
   controls.innerHTML = result;
   renderer.Render(board);
 }
+
+// Rerender on window resize
+let simClick = function() { if (document.querySelector('circle')) document.querySelector('circle').dispatchEvent(new Event('click')); }
+window.onresize = debounce(simClick, 25, false);
+
+function debounce (func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this,
+			args = arguments;
+		var later = function() {
+			timeout = null;
+			if ( !immediate ) {
+				func.apply(context, args);
+			}
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait || 200);
+		if ( callNow ) { 
+			func.apply(context, args);
+		}
+	};
+};
