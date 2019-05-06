@@ -24,6 +24,11 @@ onmessage = function(e) {
 function AlphaBetaSearch(board, color) {
   startTime = Date.now();
   startColor = color;
+  
+  UpdateColor(true);
+  let startCount = Actions(board).length;
+  maxDepth = Math.floor(Math.log(2e9) / Math.log(startCount + 20)) + 1
+  console.log(startCount, maxDepth);
 
   let move = MaxMoveValue(board, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, 0);
   return move;
