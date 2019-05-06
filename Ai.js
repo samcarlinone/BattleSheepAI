@@ -127,7 +127,7 @@ function Utility(board) {
 /** TerminalTest */
 function TerminalTest(board) {
   var elapsedTime = new Date().getTime - startTime;
-  if(elapsedTime > 1) {
+  if(elapsedTime > 3) {
     startTime = new Date().getTime;
     return moves;
   } 
