@@ -133,7 +133,7 @@ class Board {
 
   /** Checks whether the passed hex is not null and uncolored */
   IsOpen = (hex) => {
-    return hex !== null && hex.color === null;
+    return !!hex && hex.color === null;
   }
 
   /** Starting at next hex, returns last empty hex (or null if none exists) */

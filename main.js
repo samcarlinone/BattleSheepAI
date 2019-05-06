@@ -274,6 +274,40 @@ function AiMessage({ data: { move } }) {
 
 function Over() {
   sidebar.classList.remove('is-ai');
-  controls.innerHTML = '<span> Game Over </span>';
+  let result = '<div class="game-over"> Game Over </div>';
+
+  let redTrapped = board.hexes.filter(hex => hex.color === red).map(hex => hex.count - 1).reduce((t, n) => t + n);
+  let blueTrapped = board.hexes.filter(hex => hex.color === blue).map(hex => hex.count - 1).reduce((t, n) => t + n);
+
+  if (redTrapped === blueTrapped)
+    result += '<div class="game-over">Tie!</div>';
+  else
+    result += `<div class="game-over">${blueTrapped < redTrapped ? 'Blue' : 'Red'} Wins!</div>`;
+
+  controls.innerHTML = result;
   renderer.Render(board);
 }
+
+// Rerender on window resize
+let simClick = function() { if (document.querySelector('circle')) document.querySelector('circle').dispatchEvent(new Event('click')); }
+window.onresize = debounce(simClick, 25, false);
+
+function debounce (func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this,
+			args = arguments;
+		var later = function() {
+			timeout = null;
+			if ( !immediate ) {
+				func.apply(context, args);
+			}
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait || 200);
+		if ( callNow ) { 
+			func.apply(context, args);
+		}
+	};
+};

@@ -4,32 +4,48 @@ body {
 
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
 
   font-family: 'Ubuntu', sans-serif;
   font-size: 20pt;
+
+  overflow: hidden;
 }
 
 #main, svg {
-  width: 100vmin;
-  height: 100vmin;
+  flex-grow: 1;
+  max-height: 100vh;
 }
 
 /* Sidebar */
 .sidebar {
-  width: 50vmin;
-  height: 100vh;
-  padding: 5vmin;
+  padding: 2vmin;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
 
   user-select: none;
+
+  flex-basis: 26vmin;
+}
+
+@media (orientation: portrait) {
+  body {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    flex-direction: row;
+  }
 }
 
 .error-span {
   text-decoration: solid underline red;
+}
+
+.game-over {
+  text-align: center;
 }
 
 /* Avatar */
