@@ -1,7 +1,9 @@
 importScripts('Board.js', 'Util.js');
 
 //set up timer in case of timeout on large search tree
-var startTime = new Date().getTime();
+let startTime;
+let maxThinkTime = 120 * 1000; // Should be in ms
+let maxDepth = 5;
 
 // Note: this script is only called if blue can make a move
 onmessage = function(e) {
@@ -20,35 +22,79 @@ onmessage = function(e) {
 
 // ==== <Alpha Beta Pruning Search (adapted from slides)>
 function AlphaBetaSearch(board, color) {
+  startTime = Date.now();
   startColor = color;
 
-  let v = MaxValue(board, Number.MIN_VALUE, Number.MAX_VALUE);
-  return Actions(board).find(move => move.value === v);
+  let move = MaxMoveValue(board, Number.MIN_VALUE, Number.MAX_VALUE, 0);
+  console.log(move);
+  return move;
 }
 
-function MaxValue(board, a, b) {
+// Same as MaxValue but remembers and returns best Move instead of highest score
+function MaxMoveValue(board, a, b, depth) {
   UpdateColor(true);
-  if (TerminalTest(board)) return Utility(board);
 
   let v = Number.MIN_VALUE;
+  let bestMove = null;
   let moves = Actions(board);
   if(moves.length === 0) moves = ['no-op'];
   
   for (let move of moves) {
     if (move !== 'no-op') board.Execute(move);
-    v = Math.max(v, MinValue(board, a, b));
+
+    let newV = MinValue(board, a, b, depth + 1);
+
+    if (newV > v) {
+      v = newV;
+      bestMove = move;
+    }
+
+    if (move !== 'no-op') board.Revert(1);
+
+    // if (v >= b) return bestMove; (b will always be max value, so this never works)
+    a = Math.max(a, v);
+  }
+
+  if (bestMove === null)
+    debugger;
+  
+  return bestMove;
+}
+
+function MaxValue(board, a, b, depth) {
+  UpdateColor(true);
+  if (TerminalTest(board, depth)) return Utility(board);
+
+  let v = Number.MIN_VALUE;
+
+  var moves = Actions(board);
+
+  if (moves === undefined || moves.length === 0)
+    debugger;
+
+  if(moves.length === 0) moves = ['no-op'];
+  
+  for (let move of moves) {
+    if (move !== 'no-op') board.Execute(move);
+    v = Math.max(v, MinValue(board, a, b, depth + 1));
     if (move !== 'no-op') board.Revert(1);
 
     if (v >= b) return v;
     a = Math.max(a, v);
+
+    if (v === Number.MIN_VALUE)
+      debugger;
   }
+
+  if (v === Number.MIN_VALUE)
+      debugger;
 
   return v;
 }
 
-function MinValue(board, a, b) {
+function MinValue(board, a, b, depth) {
   UpdateColor(false);
-  if (TerminalTest(board)) return Utility(board);
+  if (TerminalTest(board, depth)) return Utility(board);
 
   let v = Number.MAX_VALUE;
   
@@ -57,7 +103,7 @@ function MinValue(board, a, b) {
   
   for (let move of moves) {
     if (move !== 'no-op') board.Execute(move);
-    v = Math.min(v, MaxValue(board, a, b));
+    v = Math.min(v, MaxValue(board, a, b, depth + 1));
     if (move !== 'no-op') board.Revert(1);
 
     if (v <= a) return v;
@@ -81,55 +127,77 @@ function UpdateColor(isMax) {
 
 /** Actions: Returns [Move] for a given board */
 function Actions(board) {
-  // TODO: Complete implementation
   var hexes = board.hexes;
   var moves = [];
+
   for(let h of hexes) {
-    moves.a
-    if (h.color === this.currentColor) {
-      for(let c of h.links) {
-        if (board.IsOpen(c)) {
-          for(var numTokens = 1; numTokens < h.count; numTokens++) {
-            moves.push(new Move(c, numTokens, h.x, h.y));
-          }
-        }
-      }
+    if (h.color === currentColor && h.count > 1) {
+
+      let open = [false, false, false, false, false, false];
+
+      for (let dir = 0; dir < 6; dir++)
+        open[dir] = board.IsOpen(h.links[dir]);
+
+      // Since splitting near even stacks is often the most optimal move this "pre-sorting"
+      // can significantly reduce search times. The speedup is definitely worth the increased
+      // overhead and code complexity.
+      let half = Math.floor(h.count / 2);
+
+      for (let numTokens = 1; numTokens < half; numTokens++)
+        for (let dir = 0; dir < 6; dir++)
+          if (open[dir])
+            moves.push(new Move(dir, numTokens, h.x, h.y));
+
+      for (let numTokens = half; numTokens < h.count; numTokens++)
+        for (let dir = 0; dir < 6; dir++)
+          if (open[dir])
+            moves.push(new Move(dir, numTokens, h.x, h.y));
+
+      // for(let dir = 0; dir < 6; dir++) {
+      //   if (board.IsOpen(h.links[dir])) {
+      //     for(var numTokens = 1; numTokens < h.count; numTokens++) {
+      //       moves.push(new Move(dir, numTokens, h.x, h.y));
+      //     }
+      //   }
+      // }
     }
   }
+
   return moves;
 }
 
 /** Utility: Returns the Utility score for a given board */
 function Utility(board) {
-  // TODO: Complete implementation
-  var utility = 0.0;
-  var hexes = board.GetData();
+  var utility = 0;
+  var hexes = board.hexes;
   
   for(let h of hexes){
     //count # of moves our own stacks can make
-    if(h.color === this.currentColor) {
+    if(h.color === startColor) {
       for (let linked of h.links) {
-        if (board.IsOpen(linked)) utility += 1;
+        if (board.IsOpen(linked)) utility += h.count;
       }
     }
     
     //check if our opponent has no moves
-    if((h.color !== this.currentColor) && (h.color !== null) && !(board.CanMove(h))) {
-      utility = utility + h.count;
-    }
+    if(h.color !== startColor  && h.color !== null && h.count > 1 && !board.CanMove(h))
+      utility += 20 * h.count;
 
     //check if we have no moves
-    if(!h.CanMove) utility = utility - 1;
+    if(h.color === startColor && h.count > 1 && !board.CanMove(h))
+      utility -= 50 * h.count;
   }
+
   return utility;
 }
 
 /** TerminalTest */
-function TerminalTest(board) {
-  var elapsedTime = new Date().getTime - startTime;
-  if(elapsedTime > 3) {
-    startTime = new Date().getTime;
-    return moves;
-  } 
-  return(!board.HasMoves(red) && !board.HasMoves(blue));
+function TerminalTest(board, depth) {
+  if (depth > maxDepth)
+    return true;
+
+  if(Date.now() - startTime > maxThinkTime)
+    return true;
+
+  return !board.HasMoves(red) && !board.HasMoves(blue);
 }
